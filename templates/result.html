@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Analysis Result</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --background-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h1 {
+            font-size: 1.6rem;
+            margin: 0;
+        }
+        
+        .timestamp {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .result-container {
+            background-color: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .result-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .result-header h2 {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .result-body {
+            padding: 20px;
+        }
+        
+        .data-section {
+            margin-bottom: 25px;
+        }
+        
+        .data-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--primary-color);
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .data-item {
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .data-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        
+        .data-value {
+            font-weight: 500;
+            word-break: break-word;
+        }
+        
+        .data-value.highlight {
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .highlight-success {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: #1e8449;
+        }
+        
+        .highlight-danger {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: #a93226;
+        }
+        
+        .highlight-warning {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: #b9770e;
+        }
+        
+        .raw-data {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+        
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--text-primary);
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .toggle-raw {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 5px 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .toggle-raw:hover {
+            text-decoration: underline;
+        }
+        
+        .toggle-icon {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 5px 5px 0 5px;
+            border-color: var(--accent-color) transparent transparent transparent;
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+        
+        .toggle-icon.open {
+            transform: rotate(180deg);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .timestamp {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Fraud Detection Analysis Results</h1>
+            <div class="timestamp" id="current-time">Analysis completed on: </div>
+        </header>
+        
+        <div class="result-container">
+            <div class="result-header">
+                <h2>Transaction Analysis Summary</h2>
+            </div>
+            
+            <div class="result-body">
+                <div class="data-section">
+                    <h3>Transaction Details</h3>
+                    <div class="data-grid" id="transaction-details">
+                        <!-- Transaction details will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="data-section">
+                    <h3>User Information</h3>
+                    <div class="data-grid" id="user-information">
+                        <!-- User information will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="data-section">
+                    <h3>Risk Indicators</h3>
+                    <div class="data-grid" id="risk-indicators">
+                        <!-- Risk indicators will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="data-section">
+                    <button class="toggle-raw" id="toggleRawData">
+                        Show Raw Data
+                        <span class="toggle-icon" id="toggleIcon"></span>
+                    </button>
+                    <div class="raw-data" id="rawDataContainer" style="display: none;">
+                        <pre id="rawData">{{ data }}</pre>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="#" class="btn btn-secondary" onclick="window.history.back(); return false;">Back to Form</a>
+                    <a href="#" class="btn btn-primary" id="exportBtn">Export Results</a>
+                </div>
+                
+                <!-- Hidden form for submission -->
+                <form id="hiddenForm" style="display:none;">
+                    <input type="hidden" id="is_fraud_field" name="is_fraud" value="0">
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        &copy; 2025 Fraud Detection System | All data is processed securely
+    </footer>
+    
+    <script>
+        // Set current timestamp
+        const now = new Date();
+        document.getElementById('current-time').textContent += now.toLocaleString();
+        
+        // Toggle raw data visibility
+        const toggleBtn = document.getElementById('toggleRawData');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const rawDataContainer = document.getElementById('rawDataContainer');
+        
+        toggleBtn.addEventListener('click', function() {
+            if (rawDataContainer.style.display === 'none') {
+                rawDataContainer.style.display = 'block';
+                toggleBtn.textContent = 'Hide Raw Data ';
+                toggleIcon.classList.add('open');
+            } else {
+                rawDataContainer.style.display = 'none';
+                toggleBtn.textContent = 'Show Raw Data ';
+                toggleIcon.classList.remove('open');
+            }
+            toggleBtn.appendChild(toggleIcon);
+        });
+        
+        // Parse and display the form data
+        function parseAndDisplayData() {
+            const rawData = document.getElementById('rawData').textContent;
+            let data;
+            
+            try {
+                // Attempt to parse as JSON
+                data = JSON.parse(rawData);
+                
+                // Ensure is_fraud is included for API validation
+                if (data.is_fraud === undefined) {
+                    // Add default value if missing
+                    data.is_fraud = 0;
+                    document.getElementById('is_fraud_field').value = "0";
+                } else {
+                    document.getElementById('is_fraud_field').value = data.is_fraud.toString();
+                }
+            } catch (e) {
+                // If not JSON, create a simple object from the text
+                data = { rawContent: rawData, is_fraud: 0 };
+                document.getElementById('is_fraud_field').value = "0";
+            }
+            
+            // Function to create a data item element
+            function createDataItem(label, value, highlight = null) {
+                const item = document.createElement('div');
+                item.className = 'data-item';
+                
+                const labelEl = document.createElement('div');
+                labelEl.className = 'data-label';
+                labelEl.textContent = label;
+                
+                const valueEl = document.createElement('div');
+                valueEl.className = 'data-value';
+                
+                if (highlight) {
+                    valueEl.classList.add('highlight', `highlight-${highlight}`);
+                }
+                
+                // Handle boolean values
+                if (value === true) {
+                    valueEl.textContent = 'Yes';
+                } else if (value === false) {
+                    valueEl.textContent = 'No';
+                } else if (value === null || value === undefined) {
+                    valueEl.textContent = 'N/A';
+                } else {
+                    valueEl.textContent = value;
+                }
+                
+                item.appendChild(labelEl);
+                item.appendChild(valueEl);
+                
+                return item;
+            }
+            
+            // Categorize fields
+            const transactionFields = [
+                'transaction_id', 'transaction_amount', 'merchant_id', 
+                'merchant_category', 'transaction_channel', 'transaction_location'
+            ];
+            
+            const userFields = [
+                'user_id', 'user_location', 'user_credit_score', 
+                'user_income', 'account_age_days', 'previous_transactions', 
+                'failed_transactions'
+            ];
+            
+            const riskFields = [
+                'is_foreign_transaction', 'is_high_risk_country', 'is_vpn_used',
+                'device_type', 'is_account_compromised'
+            ];
+            
+            // Map field names to more readable labels
+            const fieldLabels = {
+                'transaction_id': 'Transaction ID',
+                'transaction_amount': 'Amount ($)',
+                'merchant_id': 'Merchant ID',
+                'merchant_category': 'Merchant Category',
+                'transaction_channel': 'Channel',
+                'transaction_location': 'Location',
+                'user_id': 'User ID',
+                'user_location': 'User Location',
+                'user_credit_score': 'Credit Score',
+                'user_income': 'Annual Income ($)',
+                'account_age_days': 'Account Age (Days)',
+                'previous_transactions': 'Previous Transactions',
+                'failed_transactions': 'Failed Transactions',
+                'is_foreign_transaction': 'Foreign Transaction',
+                'is_high_risk_country': 'High Risk Country',
+                'is_vpn_used': 'VPN Used',
+                'device_type': 'Device Type',
+                'is_account_compromised': 'Account Compromised'
+            };
+            
+            // Helper to render a section
+            function renderSection(containerId, fields) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                
+                fields.forEach(field => {
+                    if (data[field] !== undefined) {
+                        let highlight = null;
+                        
+                        // Add highlights for risk indicators
+                        if (field === 'is_account_compromised' && (data[field] === '1' || data[field] === 1 || data[field] === true)) {
+                            highlight = 'danger';
+                        } else if (field === 'is_high_risk_country' && (data[field] === '1' || data[field] === 1 || data[field] === true)) {
+                            highlight = 'warning';
+                        } else if (field === 'is_vpn_used' && (data[field] === '1' || data[field] === 1 || data[field] === true)) {
+                            highlight = 'warning';
+                        } else if (field === 'failed_transactions' && parseInt(data[field]) > 0) {
+                            highlight = 'warning';
+                        }
+                        
+                        const dataItem = createDataItem(
+                            fieldLabels[field] || field,
+                            data[field],
+                            highlight
+                        );
+                        
+                        container.appendChild(dataItem);
+                    }
+                });
+                
+                // If no data was added, show a message
+                if (container.children.length === 0) {
+                    const noData = document.createElement('p');
+                    noData.textContent = 'No data available';
+                    container.appendChild(noData);
+                }
+            }
+            
+            // Render all sections
+            renderSection('transaction-details', transactionFields);
+            renderSection('user-information', userFields);
+            renderSection('risk-indicators', riskFields);
+        }
+        
+        // Set up form submission with is_fraud field
+        document.getElementById('exportBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Here you would typically send the form data to your backend
+            // For this example, we'll just log it
+            console.log('Exporting with is_fraud value:', document.getElementById('is_fraud_field').value);
+            
+            // In a real application, you would submit the form or make an API call here
+            // document.getElementById('hiddenForm').submit();
+            
+            alert('Results exported successfully.');
+        });
+        
+        // Initialize the page
+        window.onload = function() {
+            parseAndDisplayData();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  application:
+    image: ${IMAGE_NAME}
+    container_name: fraud_detection_container
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - TOPIC_NAME=${TOPIC_NAME}
+      - KAFKA_PORT=${KAFKA_PORT}
+      - KAFKA_USERNAME=${KAFKA_USERNAME}
+      - KAFKA_PASSWORD=${KAFKA_PASSWORD}

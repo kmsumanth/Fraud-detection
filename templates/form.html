@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection Analysis System</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background: url('https://i0.wp.com/spd.tech/wp-content/uploads/2021/10/2-Fraud-Detection-Using-Machine-Learning-Models.webp?fit=4000%2C2040&ssl=1') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Align container to the left */
+        }
+        
+        header {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+        
+        .form-container {
+            background: rgba(20, 30, 48, 0.85);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            width: 60%; /* Reduce width to show more background */
+            max-width: 600px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-left: 0; /* Align to the left */
+        }
+        
+        .form-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-section {
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 30px;
+        }
+        
+        option {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .binary-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .radio-option input {
+            width: auto;
+        }
+        
+        .form-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .alert-text {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-reset {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .btn-submit {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .form-sections {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .form-container {
+                width: 90%;
+            }
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+        
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <header>
+            <h1>Fraud Detection Analysis</h1>
+            <p class="subtitle">Enter transaction details to analyze potential fraud patterns</p>
+        </header>
+        
+        <div class="form-container">
+            <form action="/submit" method="post" id="fraudForm">
+                <div class="form-sections">
+                    <div class="form-section">
+                        <h2>Transaction Details</h2>
+                        
+                        <div class="form-group">
+                            <label for="transaction_id">Transaction ID</label>
+                            <input type="number" id="transaction_id" name="transaction_id" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction_amount">Transaction Amount ($)</label>
+                            <input type="number" id="transaction_amount" name="transaction_amount" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="merchant_id">Merchant ID</label>
+                            <input type="number" id="merchant_id" name="merchant_id" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="merchant_category">Merchant Category</label>
+                            <select id="merchant_category" name="merchant_category" required>
+                                <option value="">Select category</option>
+                                <option value="grocery">Grocery</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="entertainment">Entertainment</option>
+                                <option value="travel">Travel</option>
+                                <option value="retail">Retail</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction_channel">Transaction Channel</label>
+                            <select id="transaction_channel" name="transaction_channel" required>
+                                <option value="">Select channel</option>
+                                <option value="online">Online</option>
+                                <option value="mobile">Mobile</option>
+                                <option value="in-store">In-store</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction_location">Transaction Location</label>
+                            <select id="transaction_location" name="transaction_location" required>
+                                <option value="">Select state</option>
+                                <option value="CA">California (CA)</option>
+                                <option value="FL">Florida (FL)</option>
+                                <option value="GA">Georgia (GA)</option>
+                                <option value="IL">Illinois (IL)</option>
+                                <option value="MI">Michigan (MI)</option>
+                                <option value="NV">Nevada (NV)</option>
+                                <option value="NY">New York (NY)</option>
+                                <option value="OH">Ohio (OH)</option>
+                                <option value="TX">Texas (TX)</option>
+                                <option value="WA">Washington (WA)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h2>User Information</h2>
+                        
+                        <div class="form-group">
+                            <label for="user_id">User ID</label>
+                            <input type="number" id="user_id" name="user_id" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="user_location">User Location</label>
+                            <select id="user_location" name="user_location" required>
+                                <option value="">Select state</option>
+                                <option value="CA">California (CA)</option>
+                                <option value="FL">Florida (FL)</option>
+                                <option value="GA">Georgia (GA)</option>
+                                <option value="IL">Illinois (IL)</option>
+                                <option value="MI">Michigan (MI)</option>
+                                <option value="NV">Nevada (NV)</option>
+                                <option value="NY">New York (NY)</option>
+                                <option value="OH">Ohio (OH)</option>
+                                <option value="TX">Texas (TX)</option>
+                                <option value="WA">Washington (WA)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="user_credit_score">User Credit Score (300-850)</label>
+                            <input type="number" id="user_credit_score" name="user_credit_score" min="300" max="850" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="user_income">User Annual Income ($)</label>
+                            <input type="number" id="user_income" name="user_income" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="account_age_days">Account Age (Days)</label>
+                            <input type="number" id="account_age_days" name="account_age_days" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="previous_transactions">Previous Transactions (Count)</label>
+                            <input type="number" id="previous_transactions" name="previous_transactions" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="failed_transactions">Failed Transactions (Count)</label>
+                            <input type="number" id="failed_transactions" name="failed_transactions" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h2>Risk Factors</h2>
+                        
+                        <div class="form-group">
+                            <label for="device_type">Device Type</label>
+                            <select id="device_type" name="device_type" required>
+                                <option value="">Select device</option>
+                                <option value="mobile">Mobile</option>
+                                <option value="tablet">Tablet</option>
+                                <option value="desktop">Desktop</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Is Foreign Transaction</label>
+                            <div class="binary-input">
+                                <label class="radio-option">
+                                    <input type="radio" name="is_foreign_transaction" value="1" required>
+                                    Yes
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="is_foreign_transaction" value="0" required>
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Is High Risk Country</label>
+                            <div class="binary-input">
+                                <label class="radio-option">
+                                    <input type="radio" name="is_high_risk_country" value="1" required>
+                                    Yes
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="is_high_risk_country" value="0" required>
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Is VPN Used</label>
+                            <div class="binary-input">
+                                <label class="radio-option">
+                                    <input type="radio" name="is_vpn_used" value="1" required>
+                                    Yes
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="is_vpn_used" value="0" required>
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Is Account Compromised</label>
+                            <div class="binary-input">
+                                <label class="radio-option">
+                                    <input type="radio" name="is_account_compromised" value="1" required>
+                                    Yes
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="is_account_compromised" value="0" required>
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-footer">
+                    <p class="alert-text">All fields are required for accurate fraud detection analysis</p>
+                    <div class="button-group">
+                        <button type="reset" class="btn-reset">Reset Form</button>
+                        <button type="submit" class="btn-submit">Analyze Transaction</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
