@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 from producer import KafkaProducer
 from fastapi import FastAPI, Request, Form
@@ -6,25 +7,36 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+# Configure logging
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+
 app = FastAPI()
 kafka_producer = KafkaProducer()
 
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# routes
+# Routes
 @app.get("/")
 async def read_root(request: Request):
     try:
+        logging.info("Serving homepage")
         return templates.TemplateResponse("index.html", {"request": request})
     except Exception as e:
+        logging.error(f"Error serving homepage: {str(e)}")
         return HTMLResponse(content=f"Error: {str(e)}", status_code=500)
 
 @app.get("/enter_data", response_class=HTMLResponse)
 def get_data(request: Request):
     try:
+        logging.info("Serving data entry form")
         return templates.TemplateResponse("form.html", {"request": request})
     except Exception as e:
+        logging.error(f"Error serving form: {str(e)}")
         return HTMLResponse(content=f"Error: {str(e)}", status_code=500)
 
 @app.post("/submit")
@@ -47,7 +59,7 @@ def submit_form(
     device_type: str = Form(...),
     merchant_category: str = Form(...),
     transaction_channel: str = Form(...),
-    user_location: str = Form(...)
+    user_location: str = Form(...),
 ):
     try:
         transaction_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -72,21 +84,26 @@ def submit_form(
             "user_location": user_location,
             "transaction_time": transaction_time,
         }
-        print(data)
+
+        logging.info(f"Received transaction data: {json.dumps(data)}")
 
         # Producing Kafka message
         try:
             kafka_producer.produce(**data)
+            logging.info(f"Successfully sent transaction {transaction_id} to Kafka")
         except Exception as kafka_error:
+            logging.error(f"Kafka Error: {str(kafka_error)}")
             return HTMLResponse(content=f"Kafka Error: {str(kafka_error)}", status_code=500)
 
         pretty_json = json.dumps(data, indent=4)
         return templates.TemplateResponse("result.html", {"request": request, "data": pretty_json})
 
     except Exception as e:
+        logging.error(f"Error processing form: {str(e)}")
         return HTMLResponse(content=f"Error: {str(e)}", status_code=500)
 
 
 if __name__ == "__main__":
     import uvicorn
+    logging.info("Starting FastAPI server on port 5000")
     uvicorn.run("main:app", host="0.0.0.0", port=5000)
