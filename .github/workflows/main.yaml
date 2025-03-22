@@ -81,7 +81,7 @@ jobs:
           export KAFKA_PORT="${{ secrets.KAFKA_PORT }}"
           export KAFKA_USERNAME="${{ secrets.KAFKA_USERNAME }}"
           export KAFKA_PASSWORD="${{ secrets.KAFKA_PASSWORD }}"
-          docker compose up -d
+          docker-compose up
 
       - name: Clean Up Old Docker Images
         run: |
